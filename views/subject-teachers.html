@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subject Teachers</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <!-- Custom CSS -->
+  <link rel="text/css" href="/public/css/styles.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" href="#">The NoteBook</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="/api/dashboard"><i class="fas fa-book"></i> Dashboard</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/api/classes"><i class="fas fa-users"></i> Classes</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/api/schedules"><i class="fas fa-calendar-alt"></i> Schedules</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/api/students"><i class="fas fa-user-graduate"></i> Students</a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="/api/subject-teachers"><i class="fas fa-chalkboard-teacher"></i> Subject Teachers</a>
+      </li>
+    </ul>
+    <a href="#" class="btn btn-danger" id="logout-btn">Đăng xuất</a>
+  </div>
+</nav>
+
+<main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+  <div class="my-3">
+    <h2>Danh sách giáo viên môn học</h2>
+    <!-- Search Bar -->
+    <div class="input-group mb-3">
+      <input type="text" class="form-control" placeholder="Tìm kiếm giáo viên..." id="search-input">
+      <div class="input-group-append">
+        <button class="btn btn-outline-secondary" type="button" id="search-button"><i class="fas fa-search"></i></button>
+      </div>
+    </div>
+
+    <!-- Add Subject Teacher Button -->
+    <button type="button" class="btn btn-primary mb-3" id="addSubjectTeacherButton" data-toggle="modal" data-target="#addSubjectTeacherModal" style="display: none;">
+      <i class="fas fa-plus"></i> Thêm giáo viên môn học
+    </button>
+
+    <!-- Table to display subject teachers -->
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Giáo viên</th>
+          <th>Lớp học</th>
+          <th>Môn học</th>
+          <th>Ngày tạo</th>
+          <th>Ngày cập nhật</th>
+          <th>Thao tác</th>
+        </tr>
+      </thead>
+      <tbody id="subject-teacher-list">
+        <!-- Subject teachers will be dynamically inserted here -->
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<!-- Modal for adding a new subject teacher -->
+<div class="modal fade" id="addSubjectTeacherModal" tabindex="-1" role="dialog" aria-labelledby="addSubjectTeacherModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addSubjectTeacherModalLabel">Thêm giáo viên môn học mới</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="addSubjectTeacherForm">
+          <div class="form-group">
+            <label for="teacherSelect">Giáo viên:</label>
+            <select class="form-control" id="teacherSelect" required>
+              <!-- Options for subject teachers will be dynamically inserted here -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="classSelect">Lớp học:</label>
+            <select class="form-control" id="classSelect" required>
+              <!-- Options for classes will be dynamically inserted here -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="subject">Môn học:</label>
+            <input type="text" class="form-control" id="subject" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Thêm</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal for editing a subject teacher -->
+<div class="modal fade" id="editSubjectTeacherModal" tabindex="-1" role="dialog" aria-labelledby="editSubjectTeacherModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editSubjectTeacherModalLabel">Chỉnh sửa giáo viên môn học</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="editSubjectTeacherForm">
+          <div class="form-group">
+            <label for="teacherSelect">Giáo viên:</label>
+            <select class="form-control" id="teacherSelect" required>
+              <!-- Options for subject teachers will be dynamically inserted here -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="classSelect">Lớp học:</label>
+            <select class="form-control" id="classSelect" required>
+              <!-- Options for classes will be dynamically inserted here -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="subject">Môn học:</label>
+            <input type="text" class="form-control" id="subject" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="bg-dark text-white text-center py-3">
+  <p>&copy; 2024 The NoteBook</p>
+</footer>
+
+<!-- Include Bootstrap JS -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+  // Function to clear localStorage and cookies
+  function clearUserData() {
+    localStorage.clear(); // Clear localStorage
+    document.cookie = ""; // Clear cookies (not recommended)
+  }
+
+  // Logout function
+  function logout() {
+    clearUserData(); // Clear user data
+    window.location.href = '/api/auth/login'; // Redirect to login page
+  }
+
+  // Event listener for logout button
+  document.getElementById('logout-btn').addEventListener('click', logout);
+
+  // Fetch and display subject teachers
+  async function fetchSubjectTeachers() {
+    try {
+      const response = await fetch('/api/subject-teachers/all');
+      const subjectTeachers = await response.json();
+      const subjectTeacherList = document.getElementById('subject-teacher-list');
+      subjectTeacherList.innerHTML = '';
+      subjectTeachers.forEach(subjectTeacher => {
+        const row = `
+          <tr>
+            <td>${subjectTeacher.username}</td>
+            <td>${subjectTeacher.class_name}</td>
+            <td>${subjectTeacher.subject}</td>
+            <td>${new Date(subjectTeacher.created_at).toLocaleString()}</td>
+            <td>${new Date(subjectTeacher.updated_at).toLocaleString()}</td>
+            <td>
+              <button class="btn btn-warning btn-sm edit-subject-teacher-btn" data-id="${subjectTeacher._id}" style="display: none;">
+                <i class="fas fa-edit"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+        subjectTeacherList.insertAdjacentHTML('beforeend', row);
+      });
+    } catch (error) {
+      console.error('Error fetching subject teachers:', error);
+    }
+  }
+
+  // Event listener for search button
+  document.getElementById('search-button').addEventListener('click', async () => {
+    const searchInput = document.getElementById('search-input').value;
+    try {
+      const response = await fetch(`/api/subject-teachers?search=${searchInput}`);
+      const subjectTeachers = await response.json();
+      const subjectTeacherList = document.getElementById('subject-teacher-list');
+      subjectTeacherList.innerHTML = '';
+      subjectTeachers.forEach(subjectTeacher => {
+        const row = `
+          <tr>
+            <td>${subjectTeacher.user_id.username}</td>
+            <td>${subjectTeacher.class_id.classname}</td>
+            <td>${subjectTeacher.subject}</td>
+            <td>${new Date(subjectTeacher.created_at).toLocaleString()}</td>
+            <td>${new Date(subjectTeacher.updated_at).toLocaleString()}</td>
+            <td>
+              <button class="btn btn-warning btn-sm edit-subject-teacher-btn" data-id="${subjectTeacher._id}" style="display: none;">
+                <i class="fas fa-edit"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+        subjectTeacherList.insertAdjacentHTML('beforeend', row);
+      });
+    } catch (error) {
+      console.error('Error searching subject teachers:', error);
+    }
+  });
+
+  // Event listener for edit button click
+  $(document).on('click', '.edit-subject-teacher-btn', async function () {
+    const subjectTeacherId = $(this).data('id');
+    try {
+      // Fetch subject teacher details by ID
+      const response = await fetch(`/api/subject-teachers/${subjectTeacherId}`);
+      const subjectTeacher = await response.json();
+      if (subjectTeacher) {
+        // Populate the modal with subject teacher details
+        $('#editSubjectTeacherModal #teacherSelect').val(subjectTeacher.username);
+        $('#editSubjectTeacherModal #classSelect').val(subjectTeacher.class_name);
+        $('#editSubjectTeacherModal #subject').val(subjectTeacher.subject);
+        $('#editSubjectTeacherModal').modal('show');
+        // Save the ID of the subject teacher being edited
+        $('#editSubjectTeacherModal').data('id', subjectTeacherId);
+      } else {
+        console.error('Subject teacher not found');
+      }
+    } catch (error) {
+      console.error('Error fetching subject teacher details:', error);
+    }
+  });
+
+  // Event listener for form submission in edit modal
+  $('#editSubjectTeacherModal').on('submit', '#editSubjectTeacherForm', async function (event) {
+    event.preventDefault();
+    const subjectTeacherId = $('#editSubjectTeacherModal').data('id');
+    const username = $('#editSubjectTeacherModal #teacherSelect').val();
+    const class_name = $('#editSubjectTeacherModal #classSelect').val();
+    const subject = $('#editSubjectTeacherModal #subject').val();
+    try {
+      // Call API to update subject teacher
+      const response = await fetch(`/api/subject-teachers/update/${subjectTeacherId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username, class_name, subject })
+      });
+      const updatedSubjectTeacher = await response.json();
+      if (updatedSubjectTeacher) {
+        // Close the modal
+        $('#editSubjectTeacherModal').modal('hide');
+        // Refresh the subject teacher list
+        fetchSubjectTeachers();
+      } else {
+        console.error('Failed to update subject teacher');
+      }
+    } catch (error) {
+      console.error('Error updating subject teacher:', error);
+    }
+  });
+
+  $('#addSubjectTeacherModal').on('show.bs.modal', async function (event) {
+    try {
+      // Clear any existing content in the modal body
+      const modalBody = $(this).find('.modal-body');
+      modalBody.html('');
+
+      // Fetch classes
+      const classResponse = await fetch('/api/classes/all');
+      const classes = await classResponse.json();
+
+      // Fetch teachers
+      const teacherResponse = await fetch('/api/subject-teachers/sub');
+      const teachers = await teacherResponse.json();
+
+      // Construct options for class select
+      let classOptions = '';
+      classes.forEach(classItem => {
+        classOptions += `<option value="${classItem.class_name}">${classItem.class_name}</option>`;
+      });
+
+      // Construct options for teacher select
+      let teacherOptions = '';
+      teachers.forEach(teacher => {
+        teacherOptions += `<option value="${teacher.username}">${teacher.username}</option>`;
+      });
+
+      // Append the form for adding a new subject teacher
+      const form = `
+        <form id="addSubjectTeacherForm">
+          <div class="form-group">
+            <label for="teacherSelect">Giáo viên:</label>
+            <select class="form-control" id="teacherSelect" required>
+              ${teacherOptions}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="classSelect">Lớp học:</label>
+            <select class="form-control" id="classSelect" required>
+              ${classOptions}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="subject">Môn học:</label>
+            <input type="text" class="form-control" id="subject" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Thêm</button>
+        </form>
+      `;
+      modalBody.append(form);
+    } catch (error) {
+      console.error('Error fetching modal data:', error);
+    }
+  });
+
+  // Event listener for form submission
+  $('#addSubjectTeacherModal').on('submit', '#addSubjectTeacherForm', async function (event) {
+    event.preventDefault();
+    const username = $('#teacherSelect').val();
+    const class_name = $('#classSelect').val();
+    const subject = $('#subject').val();
+    try {
+      const response = await fetch('/api/subject-teachers/assign', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username, class_name, subject })
+      });
+      const newSubjectTeacher = await response.json();
+      // Close the modal
+      $('#addSubjectTeacherModal').modal('hide');
+      // Refresh the subject teacher list
+      fetchSubjectTeachers();
+    } catch (error) {
+      console.error('Error adding subject teacher:', error);
+    }
+  });
+
+  // Event listener for modal hide event
+  $('#addSubjectTeacherModal').on('hide.bs.modal', function (event) {
+    // Clear the form fields when the modal is closed
+    $(this).find('form')[0].reset();
+  });
+
+  // Initial fetch of subject teachers
+  fetchSubjectTeachers();
+
+  // Fetch user role and manage visibility of buttons
+  async function fetchUserRole() {
+    const username = localStorage.getItem('username');
+    if (username) {
+      try {
+        const response = await fetch(`/api/user/${username}`);
+        const user = await response.json();
+        if (user.role === 'subject_head_teacher') {
+          document.getElementById('addSubjectTeacherButton').style.display = 'block';
+          document.querySelectorAll('.edit-subject-teacher-btn').forEach(btn => btn.style.display = 'inline-block');
+        }
+      } catch (error) {
+        console.error('Error fetching user role:', error);
+      }
+    }
+  }
+
+  // Fetch user role on page load
+  fetchUserRole();
+
+</script>
+</body>
+</html>

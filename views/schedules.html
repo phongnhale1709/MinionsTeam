@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Schedules</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <!-- Custom CSS -->
+  <link rel="text/css" href="/public/css/styles.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" href="#">The NoteBook</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="/api/dashboard"><i class="fas fa-book"></i> Dashboard</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/api/classes"><i class="fas fa-users"></i> Classes</a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="/api/schedules"><i class="fas fa-calendar-alt"></i> Schedules</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/api/students"><i class="fas fa-user-graduate"></i> Students</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/api/subject-teachers"><i class="fas fa-chalkboard-teacher"></i> Subject Teachers</a>
+      </li>
+    </ul>
+    <a href="#" class="btn btn-danger" id="logout-btn">Đăng xuất</a>
+  </div>
+</nav>
+
+<main role="main" class="container">
+  <div class="my-3">
+    <h2>Danh sách lịch học</h2>
+    <!-- Add Schedule Button -->
+    <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#addScheduleModal">
+      <i class="fas fa-plus"></i> Thêm lịch học
+    </button>
+
+    <!-- Search Bar and Sort/Filter Options -->
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="Tìm kiếm lịch..." id="search-input">
+          <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="button" id="search-button"><i class="fas fa-search"></i></button>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="input-group">
+          <select class="form-control" id="sort-select">
+            <option value="date_desc">Sắp xếp theo ngày (từ gần đến xa)</option>
+            <option value="date_asc">Sắp xếp theo ngày (từ xa đến gần)</option>
+          </select>
+          <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="button" id="sort-button">Sắp xếp</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="input-group">
+          <select class="form-control" id="filter-select">
+            <option value="all">Tất cả</option>
+            <option value="main">Dạy chính</option>
+            <option value="substitute">Dạy thay</option>
+            <option value="makeup">Dạy bù</option>
+          </select>
+          <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="button" id="filter-button">Lọc</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table to display schedules -->
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Lớp</th>
+          <th>Giáo viên</th>
+          <th>Ngày</th>
+          <th>Ca học</th>
+          <th>Loại</th>
+          <th>Created At</th>
+          <th>Updated At</th>
+          <th>Action</th>
+          <th>Export</th>
+        </tr>
+      </thead>
+      <tbody id="schedule-list">
+        <!-- Schedules will be dynamically inserted here -->
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<!-- Modal for adding a new schedule -->
+<div class="modal fade" id="addScheduleModal" tabindex="-1" role="dialog" aria-labelledby="addScheduleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addScheduleModalLabel">Thêm lịch học mới</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="add-schedule-form">
+          <div class="form-group">
+            <label for="class-id">Lớp học:</label>
+            <select class="form-control" id="class-id" required></select>
+          </div>
+          <div class="form-group">
+            <label for="subject-teacher-id">Giáo viên:</label>
+            <select class="form-control" id="subject-teacher-id" required></select>
+          </div>
+          <div class="form-group">
+            <label for="date">Ngày học:</label>
+            <input type="date" class="form-control" id="date" required>
+          </div>
+          <div class="form-group">
+          <label for="time-slot">Ca học:</label>
+          <select class="form-control" id="time-slot" required>
+            <option value="8:00-10:00">8:00-10:00</option>
+            <option value="10:00-12:00">10:00-12:00</option>
+            <option value="13:00-15:00">13:00-15:00</option>
+            <option value="15:00-17:00">15:00-17:00</option>
+          </select>
+        </div>
+          <div class="form-group">
+            <label for="type">Loại học:</label>
+            <select class="form-control" id="type" required>
+              <option value="main">Dạy chính</option>
+              <option value="substitute">Dạy thay</option>
+              <option value="makeup">Dạy bù</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Thêm lịch học</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal for editing attendance -->
+<div class="modal fade" id="editAttendanceModal" tabindex="-1" role="dialog" aria-labelledby="editAttendanceModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editAttendanceModalLabel">Danh sách học sinh và điểm danh</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Tên sinh viên</th>
+              <th>Trạng thái</th>
+            </tr>
+          </thead>
+          <tbody id="student-attendance-list">
+            <!-- Student attendance will be dynamically inserted here -->
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+        <button type="button" class="btn btn-primary" id="save-attendance-btn">Lưu điểm danh</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="bg-dark text-white text-center py-3">
+  <p>&copy; 2024 The NoteBook</p>
+</footer>
+
+<!-- Include Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- Include SheetJS (xlsx) library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+
+<script>
+$(document).ready(function () {
+  loadSchedules();
+
+  // Load schedules
+  function loadSchedules() {
+    $.ajax({
+      url: '/api/schedules/all',
+      method: 'GET',
+      success: function (data) {
+        displaySchedules(data);
+      },
+      error: function (error) {
+        console.error('Error loading schedules:', error);
+      }
+    });
+  }
+
+  
+
+  // Display schedules
+ // Display schedules
+  function displaySchedules(schedules) {
+    const scheduleList = $('#schedule-list');
+    scheduleList.empty();
+    schedules.forEach(schedule => {
+      const scheduleRow = `
+        <tr>
+          <td>${schedule.class_name}</td>
+          <td>${schedule.subject_teacher_username}</td>
+          <td>${schedule.date}</td>
+          <td>${schedule.time_slot}</td>
+          <td>${schedule.type}</td>
+          <td>${schedule.created_at}</td>
+          <td>${schedule.updated_at}</td>
+          <td>
+            <button class="btn btn-warning btn-sm edit-attendance" data-id="${schedule.class_name}" data-subject-teacher-username="${schedule.subject_teacher_username}"  data-toggle="modal" data-target="#editAttendanceModal"><i class="fas fa-edit"></i> Điểm danh</button>
+          </td>
+          <td>
+            <button class="btn btn-success btn-sm export-report-btn" data-id="${schedule.class_name}">
+              Export Report
+            </button>
+        </tr>
+      `;
+      scheduleList.append(scheduleRow);
+    });
+
+    // Attach click event to export buttons
+    $('.export-report-btn').on('click', function () {
+      const scheduleId = $(this).data('id');
+      exportScheduleToExcel(scheduleId);
+    });
+  }
+
+  // Function to export schedule to Excel
+  function exportScheduleToExcel(scheduleId) {
+    // Fetch the schedule data for the specified scheduleId
+    $.ajax({
+      url: `/api/attendences/export/${scheduleId}`,
+      method: 'GET',
+        success: function (data) {
+        const workbook = XLSX.utils.book_new();
+
+         // Create a new worksheet
+            const worksheet = XLSX.utils.json_to_sheet([], { header: ['class_name', 'subject_teacher_username', 'student_name', 'date', 'status'] });
+
+            // Track unique class names and subject teacher usernames
+            const classNames = new Set();
+            const subjectTeacherNames = new Set();
+
+            // Loop through each attendance record and add it to the worksheet
+            data.forEach(schedule => {
+                // Add class name and subject teacher username if they are not already added
+                if (!classNames.has(schedule.class_name)) {
+                    classNames.add(schedule.class_name);
+                    subjectTeacherNames.add(schedule.subject_teacher_username);
+
+                    const row = [schedule.class_name, schedule.subject_teacher_username, '', '', ''];
+                    XLSX.utils.sheet_add_aoa(worksheet, [row], { origin: -1 });
+                }
+
+                schedule.attendance_records.forEach(record => {
+                    const row = [ '', '', record.student_name, record.date, record.status ];
+                    XLSX.utils.sheet_add_aoa(worksheet, [row], { origin: -1 });
+                });
+            });
+        // Append the worksheet to the workbook
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Schedule');
+
+        // Generate Excel file and trigger download
+        XLSX.writeFile(workbook, `Schedule_${scheduleId}.xlsx`);
+      },
+      error: function (error) {
+        console.error('Error fetching schedule for export:', error);
+      }
+    });
+  }
+
+  // Add new schedule
+  $('#add-schedule-form').on('submit', function (event) {
+    event.preventDefault();
+    const newSchedule = {
+      class_name: $('#class-id').val(),
+      subject_teacher_username: $('#subject-teacher-id').val(),
+      date: $('#date').val(),
+      time_slot: $('#time-slot').val(),
+      type: $('#type').val()
+    };
+
+    $.ajax({
+      url: '/api/schedules/create',
+      method: 'POST',
+      contentType: 'application/json', // Ensure content type is set
+      data: JSON.stringify(newSchedule),
+      success: function (data) {
+        $('#addScheduleModal').modal('hide');
+        loadSchedules();
+      },
+      error: function (error) {
+        console.error('Error adding schedule:', error);
+      }
+    });
+  });
+
+  // Search schedules
+  $('#search-button').on('click', function () {
+    const query = $('#search-input').val();
+    $.ajax({
+      url: `/api/schedules?search=${query}`,
+      method: 'GET',
+      success: function (data) {
+        displaySchedules(data);
+      },
+      error: function (error) {
+        console.error('Error searching schedules:', error);
+      }
+    });
+  });
+
+  // Sort schedules
+  $('#sort-button').on('click', function () {
+    const sort = $('#sort-select').val();
+    $.ajax({
+      url: `/api/schedules?sort=${sort}`,
+      method: 'GET',
+      success: function (data) {
+        displaySchedules(data);
+      },
+      error: function (error) {
+        console.error('Error sorting schedules:', error);
+      }
+    });
+  });
+
+  // Filter schedules
+  $('#filter-button').on('click', function () {
+    const filter = $('#filter-select').val();
+    $.ajax({
+      url: `/api/schedules?filter=${filter}`,
+      method: 'GET',
+      success: function (data) {
+        displaySchedules(data);
+      },
+      error: function (error) {
+        console.error('Error filtering schedules:', error);
+      }
+    });
+  });
+
+  // Load students for attendance
+  $('#editAttendanceModal').on('show.bs.modal', function (event) {
+    const button = $(event.relatedTarget);
+    const scheduleId = button.data('id');
+    const teacherUsername = button.data('subject-teacher-username'); 
+    console.log(teacherUsername);
+    const modal = $(this);
+  
+  // Gán scheduleId vào modal
+    modal.data('id', scheduleId);
+    modal.data('teacher', teacherUsername);
+    $.ajax({
+      url: `/api/classes/${scheduleId}/students/`,
+      method: 'GET',
+      success: function (data) {
+        displayAttendance(data);
+      },
+      error: function (error) {
+        console.error('Error loading students:', error);
+      }
+    });
+  });
+
+  // Display student attendance
+  function displayAttendance(students) {
+    const studentList = $('#student-attendance-list');
+    studentList.empty();
+    students.forEach(student => {
+      const studentRow = `
+        <tr>
+          <td>${student.student_name}</td>
+          <td>
+            <select class="form-control attendance-status" data-student-id="${student.student_name}">
+              <option value="present" ${student.status === 'present' ? 'selected' : ''}>Có mặt</option>
+              <option value="absent" ${student.status === 'absent' ? 'selected' : ''}>Vắng mặt</option>
+            </select>
+          </td>
+        </tr>
+      `;
+      studentList.append(studentRow);
+    });
+  }
+
+  // Save attendance
+  $('#save-attendance-btn').on('click', function () {
+    const scheduleId = $('#editAttendanceModal').data('id');
+    const teacherUsername = $('#editAttendanceModal').data('teacher');
+    console.log(teacherUsername);
+    const attendances = [];
+    $('.attendance-status').each(function () {
+      const student_name = $(this).data('student-id');
+      const status = $(this).val();
+      const date = $(this).val();
+      attendances.push({ student_name, status });
+    });
+
+  $.ajax({
+    url: `/api/attendences/mark-attendance`,
+    method: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify({ class_name: scheduleId,subject_teacher_username: teacherUsername,  attendances }), // Thêm class_name vào dữ liệu gửi đi
+    success: function (data) {
+      $('#editAttendanceModal').modal('hide');
+      loadSchedules();
+    },
+    error: function (error) {
+      console.error('Error saving attendance:', error);
+    }
+    });
+  });
+    // Load classes and subject teachers when 'Thêm lịch học' button is clicked
+  $('#addScheduleModal').on('show.bs.modal', function () {
+    // Load classes
+    $.ajax({
+      url: '/api/classes/all',
+      method: 'GET',
+      success: function (data) {
+        const classSelect = $('#class-id');
+        classSelect.empty();
+        data.forEach(classItem => {
+          classSelect.append(`<option value="${classItem.class_name}">${classItem.class_name}</option>`);
+        });
+      },
+      error: function (error) {
+        console.error('Error loading classes:', error);
+      }
+    });
+
+    // Load subject teachers
+    $.ajax({
+      url: '/api/subject-teachers/sub',
+      method: 'GET',
+      success: function (data) {
+        const teacherSelect = $('#subject-teacher-id');
+        teacherSelect.empty();
+        data.forEach(teacher => {
+          teacherSelect.append(`<option value="${teacher.username}">${teacher.username}</option>`);
+        });
+      },
+      error: function (error) {
+        console.error('Error loading subject teachers:', error);
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>

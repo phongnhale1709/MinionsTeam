@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <!-- Custom CSS -->
+  <link rel="text/css" href="/public/css/styles.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" href="#">The NoteBook</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a class="nav-link" href="/api/dashboard"><i class="fas fa-book"></i> Dashboard</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/api/classes"><i class="fas fa-users"></i> Classes</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/api/schedules"><i class="fas fa-calendar-alt"></i> Schedules</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/api/students"><i class="fas fa-user-graduate"></i> Students</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/api/subject-teachers"><i class="fas fa-chalkboard-teacher"></i> Subject Teachers</a>
+      </li>
+    </ul>
+    <a href="#" class="btn btn-danger" id="logout-btn">Đăng xuất</a>
+  </div>
+</nav>
+
+<main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+  <div class="my-3">
+    <h2>Danh sách lớp học</h2>
+    <!-- Table to display classes -->
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Class Name</th>
+          <th>Class Master</th>
+          <th>Created At</th>
+          <th>Updated At</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="class-list">
+        <!-- Classes will be dynamically inserted here -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Nút tạo lớp học -->
+  <a href="#" class="btn btn-primary mr-2" id="create-class-btn">Tạo lớp học</a>
+</main>
+
+<!-- Modal for creating a new class -->
+<div class="modal fade" id="createClassModal" tabindex="-1" role="dialog" aria-labelledby="createClassModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="createClassModalLabel">Tạo lớp học mới</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="create-class-form">
+          <div class="form-group">
+            <label for="class-name">Class Name</label>
+            <input type="text" class="form-control" id="class-name" required>
+          </div>
+          <div class="form-group">
+            <label for="class-master-name">Class Master Name</label>
+            <input type="text" class="form-control" id="class-master-name" readonly required>
+          </div>
+          <button type="submit" class="btn btn-primary">Create</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for editing a class -->
+<div class="modal fade" id="editClassModal" tabindex="-1" role="dialog" aria-labelledby="editClassModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editClassModalLabel">Chỉnh sửa lớp học</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="edit-class-form">
+          <div class="form-group">
+            <label for="edit-class-name">Class Name</label>
+            <input type="text" class="form-control" id="edit-class-name" required>
+          </div>
+          <div class="form-group">
+            <label for="edit-class-master-name">Class Master Name</label>
+            <input type="text" class="form-control" id="edit-class-master-name" readonly required>
+          </div>
+          <input type="hidden" id="edit-class-id">
+          <button type="submit" class="btn btn-primary">Save changes</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for viewing class details -->
+<div class="modal fade" id="viewClassModal" tabindex="-1" role="dialog" aria-labelledby="viewClassModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="viewClassModalLabel">Thông tin lớp học</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="view-class-name">Class Name</label>
+          <input type="text" class="form-control" id="view-class-name" readonly>
+        </div>
+        <div class="form-group">
+          <label for="view-class-master-name">Class Master Name</label>
+          <input type="text" class="form-control" id="view-class-master-name" readonly>
+        </div>
+        <div class="form-group">
+          <label for="student-list">Danh sách học sinh</label>
+          <ul class="list-group" id="student-list">
+            <!-- Student names will be dynamically inserted here -->
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- views/layout/footer.html -->
+<footer class="bg-dark text-white text-center py-3">
+  <p>&copy; 2024 The NoteBook</p>
+</footer>
+
+<!-- Include Bootstrap JS -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+// Function to check if token exists in localStorage
+function checkToken() {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.location.href = '/api/auth/login'; // Redirect to login page
+  }
+}
+// Function to fetch user data based on username
+async function fetchUserData(username) {
+  try {
+    const response = await fetch(`/api/user/${username}`);
+    const userData = await response.json();
+    return userData;
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    return null;
+  }
+}
+
+// Check user role and hide create class button if role is "subject_teacher"
+async function checkUserRoleAndHideButton(username) {
+  const userData = await fetchUserData(username);
+  if (userData && userData.role === 'subject_teacher') {
+    document.getElementById('create-class-btn').style.display = 'none';
+  }
+}
+// Check for token when the page loads
+window.addEventListener('load', async  () => {
+  checkToken();
+  const username = localStorage.getItem('username'); // Fetch the username from localStorage
+  if (username) {
+    
+    document.getElementById('class-master-name').value = username; // Auto-fill the create class form
+    
+  }
+  if(username){
+    await checkUserRoleAndHideButton(username);
+  }
+});
+
+// Event listener for logout button
+document.getElementById('logout-btn').addEventListener('click', logout);
+
+// Function to clear localStorage and cookies
+function clearUserData() {
+  localStorage.clear(); // Clear localStorage
+  document.cookie = ""; // Clear cookies (not recommended)
+}
+
+// Logout function
+function logout() {
+  clearUserData(); // Clear user data
+  window.location.href = '/api/auth/login'; // Redirect to login page
+}
+
+
+
+// Fetch and display classes
+async function fetchClasses() {
+  try {
+    const response = await fetch('/api/classes/all');
+    const classes = await response.json();
+    const classList = document.getElementById('class-list');
+    classList.innerHTML = '';
+    classes.forEach(classData => {
+      const row = `
+        <tr>
+          <td>${classData.class_name}</td>
+          <td>${classData.class_master_name}</td>
+          <td>${new Date(classData.created_at).toLocaleString()}</td>
+          <td>${new Date(classData.updated_at).toLocaleString()}</td>
+          <td>
+            
+            <button class="btn btn-info btn-sm view-class-btn" data-name="${classData.class_name}" data-master="${classData.class_master_name}">
+              View
+            </button>
+          </td>
+        </tr>
+      `;
+      classList.insertAdjacentHTML('beforeend', row);
+    });
+
+    // Add event listeners to edit buttons
+    document.querySelectorAll('.edit-class-btn').forEach(button => {
+      button.addEventListener('click', event => {
+        const id = button.getAttribute('data-id');
+        const name = button.getAttribute('data-name');
+        const master = button.getAttribute('data-master');
+        
+        document.getElementById('edit-class-id').value = id;
+        document.getElementById('edit-class-name').value = name;
+        document.getElementById('edit-class-master-name').value = master;
+        
+        $('#editClassModal').modal('show');
+      });
+    });
+
+    // Add event listeners to view buttons
+    document.querySelectorAll('.view-class-btn').forEach(button => {
+      button.addEventListener('click', async event => {
+        const name = button.getAttribute('data-name');
+        const master = button.getAttribute('data-master');
+        
+        document.getElementById('view-class-name').value = name;
+        document.getElementById('view-class-master-name').value = master;
+        
+        await fetchStudents(name); // Fetch students for the class
+        
+        $('#viewClassModal').modal('show');
+      });
+    });
+  } catch (error) {
+    console.error('Error fetching classes:', error);
+  }
+}
+
+// Function to fetch students for a specific class
+async function fetchStudents(classId) {
+  try {
+    const response = await fetch(`/api/classes/${classId}/students`);
+    const students = await response.json();
+    const studentList = document.getElementById('student-list');
+    studentList.innerHTML = '';
+    students.forEach(student => {
+      const listItem = `<li class="list-group-item">${student.student_name}</li>`;
+      studentList.insertAdjacentHTML('beforeend', listItem);
+    });
+  } catch (error) {
+    console.error('Error fetching students:', error);
+  }
+}
+
+// Show modal for creating a new class
+document.getElementById('create-class-btn').addEventListener('click', () => {
+  const username = localStorage.getItem('username'); // Fetch the username from localStorage
+  if (username) {
+    document.getElementById('class-master-name').value = username; // Auto-fill the create class form
+  }
+  $('#createClassModal').modal('show');
+});
+
+// Handle class creation form submission
+document.getElementById('create-class-form').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const className = document.getElementById('class-name').value;
+  const classMasterName = document.getElementById('class-master-name').value;
+
+  try {
+    const response = await fetch('/api/classes/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ class_name: className, class_master_name: classMasterName }) // Updated field
+    });
+
+    if (response.ok) {
+      $('#createClassModal').modal('hide');
+      fetchClasses(); // Refresh class list
+    } else {
+      console.error('Failed to create class');
+    }
+  } catch (error) {
+    console.error('Error creating class:', error);
+  }
+});
+
+// Handle class edit form submission
+document.getElementById('edit-class-form').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const classId = document.getElementById('edit-class-id').value;
+  const className = document.getElementById('edit-class-name').value;
+  const classMasterName = document.getElementById('edit-class-master-name').value;
+
+  try {
+    const response = await fetch(`/api/classes/${classId}/update`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ class_name: className, class_master_name: classMasterName }) // Updated field
+    });
+
+    if (response.ok) {
+      $('#editClassModal').modal('hide');
+      fetchClasses(); // Refresh class list
+    } else {
+      console.error('Failed to update class');
+    }
+  } catch (error) {
+    console.error('Error updating class:', error);
+  }
+});
+
+// Initial fetch of classes
+fetchClasses();
+
+
+// Initial fetch of classes
+fetchClasses();
+
+</script>
+</body>
+</html>

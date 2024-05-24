@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Students</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <!-- Custom CSS -->
+  <link rel="text/css" href="/public/css/styles.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" href="#">The NoteBook</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="/api/dashboard"><i class="fas fa-book"></i> Dashboard</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/api/classes"><i class="fas fa-users"></i>Classes</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/api/schedules"> <i class="fas fa-calendar-alt"></i>Schedules</a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="/api/students"><i class="fas fa-user-graduate"></i>Students</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/api/subject-teachers"> <i class="fas fa-chalkboard-teacher"></i>Subject Teachers</a>
+      </li>
+    </ul>
+    <a href="#" class="btn btn-danger" id="logout-btn">Đăng xuất</a>
+  </div>
+</nav>
+
+<main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+  <div class="my-3">
+    <h2>Danh sách học sinh</h2>
+    <!-- Add Student Button -->
+    <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#addStudentModal">
+      <i class="fas fa-plus"></i> Thêm học sinh
+    </button>
+
+    <!-- Search Bar -->
+    <div class="input-group mb-3">
+      <input type="text" class="form-control" placeholder="Tìm kiếm học sinh..." id="search-input">
+      <div class="input-group-append">
+        <button class="btn btn-outline-secondary" type="button" id="search-button"><i class="fas fa-search"></i></button>
+      </div>
+    </div>
+
+    <!-- Table to display students -->
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Họ và tên</th>
+          <th>Lớp</th>
+          <th>Ngày sinh</th>
+          <th>Địa chỉ</th>
+          <th>Created At</th>
+          <th>Updated At</th>
+          <!-- <th>Action</th> -->
+        </tr>
+      </thead>
+      <tbody id="student-list">
+        <!-- Students will be dynamically inserted here -->
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<!-- Modal for adding a new student -->
+<div class="modal fade" id="addStudentModal" tabindex="-1" role="dialog" aria-labelledby="addStudentModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addStudentModalLabel">Thêm học sinh mới</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="addStudentForm">
+          <div class="form-group">
+            <label for="student-name">Họ và tên</label>
+            <input type="text" class="form-control" id="student-name" required>
+          </div>
+          <div class="form-group">
+            <label for="class-name">Lớp</label>
+            <select class="form-control" id="class-name" required>
+              <!-- Options for classes will be dynamically inserted here -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="dob">Ngày sinh</label>
+            <input type="date" class="form-control" id="dob" required>
+          </div>
+          <div class="form-group">
+            <label for="address">Địa chỉ</label>
+            <input type="text" class="form-control" id="address" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Thêm</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for viewing student details -->
+<div class="modal fade" id="viewStudentModal" tabindex="-1" role="dialog" aria-labelledby="viewStudentModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="viewStudentModalLabel">Thông tin học sinh</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="viewStudentModalBody">
+        <!-- Student details will be dynamically inserted here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="bg-dark text-white text-center py-3">
+  <p>&copy; 2024 The NoteBook</p>
+</footer>
+
+<!-- Include Bootstrap JS -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+  // Function to clear localStorage and cookies
+  function clearUserData() {
+  localStorage.clear(); // Clear localStorage
+  document.cookie = ""; // Clear cookies (not recommended)
+}
+
+// Logout function
+function logout() {
+  clearUserData(); // Clear user data
+  window.location.href = '/api/auth/login'; // Redirect to login page
+}
+
+// Event listener for logout button
+document.getElementById('logout-btn').addEventListener('click', logout);
+
+// Fetch and display students
+async function fetchStudents() {
+  try {
+    const response = await fetch('/api/students/all');
+    const students = await response.json();
+    const studentList = document.getElementById('student-list');
+    studentList.innerHTML = '';
+    students.forEach(student => {
+      const row = `
+        <tr>
+          <td>${student.student_name}</td>
+          <td>${student.class_name}</td>
+          <td>${new Date(student.dob).toLocaleDateString()}</td>
+          <td>${student.address}</td>
+          <td>${new Date(student.created_at).toLocaleString()}</td>
+          <td>${new Date(student.updated_at).toLocaleString()}</td>
+        </tr>
+      `;
+      studentList.insertAdjacentHTML('beforeend', row);
+    });
+
+    // Add event listeners to view buttons
+    document.querySelectorAll('.view-student-btn').forEach(button => {
+      button.addEventListener('click', event => {
+        const studentId = button.getAttribute('data-id');
+        viewStudentDetails(studentId);
+      });
+    });
+  } catch (error) {
+    console.error('Error fetching students:', error);
+  }
+}
+
+// Function to fetch and display student details in modal
+async function viewStudentDetails(studentId) {
+  try {
+    const response = await fetch(`/api/students/all/${studentId}`);
+    const student = await response.json();
+    const modalBody = document.getElementById('viewStudentModalBody');
+    modalBody.innerHTML = `
+      <p><strong>Họ và tên:</strong> ${student.student_name}</p>
+      <p><strong>Lớp:</strong> ${student.class_name}</p>
+      <p><strong>Ngày sinh:</strong> ${new Date(student.dob).toLocaleDateString()}</p>
+      <p><strong>Địa chỉ:</strong> ${student.address}</p>
+      <p><strong>Created At:</strong> ${new Date(student.created_at).toLocaleString()}</p>
+      <p><strong>Updated At:</strong> ${new Date(student.updated_at).toLocaleString()}</p>
+    `;
+    $('#viewStudentModal').modal('show');
+  } catch (error) {
+    console.error('Error fetching student details:', error);
+  }
+}
+
+// Handle form submission to add a new student
+document.getElementById('addStudentForm').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const studentName = document.getElementById('student-name').value;
+  const className = document.getElementById('class-name').value; // Sửa thành class-name
+  const dob = document.getElementById('dob').value;
+  const address = document.getElementById('address').value;
+
+  try {
+    const response = await fetch('/api/students/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ student_name: studentName, class_name: className, dob: dob, address: address })
+    });
+
+    if (response.ok) {
+      $('#addStudentModal').modal('hide');
+      fetchStudents(); // Refresh student list
+    } else {
+      console.error('Failed to add student');
+    }
+  } catch (error) {
+    console.error('Error adding student:', error);
+  }
+});
+
+  // Fetch and populate classes for the add student form
+  async function fetchClassesAndPopulateSelectBox() {
+    try {
+      const response = await fetch('/api/classes/all');
+      const classes = await response.json();
+      const selectBox = document.getElementById('class-name');
+      selectBox.innerHTML = ''; // Clear existing options
+      classes.forEach(classData => {
+        const option = document.createElement('option');
+        option.value = classData.class_name;
+        option.textContent = classData.class_name;
+        selectBox.appendChild(option);
+      });
+    } catch (error) {
+      console.error('Error fetching classes:', error);
+    }
+  }
+
+  // Call the function to fetch classes and populate the select box
+  fetchClassesAndPopulateSelectBox();
+// Initial fetch of students
+fetchStudents();
+</script>
+</body>
+</html>
